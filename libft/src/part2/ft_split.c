@@ -10,7 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+//#include "libft.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 static int	ft_strlen(char const *s)
 {
@@ -22,7 +26,7 @@ static int	ft_strlen(char const *s)
 	return (i);
 }
 
-static char	**pointer_malloc(char const *s, char c)
+static int pointer_num(char const *s, char c)
 {
 	int		i;
 	int		n;
@@ -36,12 +40,8 @@ static char	**pointer_malloc(char const *s, char c)
 			n++;
 		i++;
 	}
-	n += 1;
-	ret = malloc(sizeof(char *) * n);
-	if (!ret)
-		return (NULL);
-	ret[n] = 0;
-	return (ret);
+	n += 2;
+	return (n);
 }
 
 static char	*char_malloc(char const *s, char c)
@@ -65,57 +65,50 @@ static int	char_count(char const *s, char c)
 	while (s[i])
 	{
 		if (s[i] == c)
-			return (i);
+			return (i + 1);
 		i++;
 	}
-	return (i);
+	return (i + 1);
 }
 
-static char *charcpy(char const *s, char c)
+static void charcpy(char *d, char *s, int cn)
 {
 	int		i;
-	int 	n;
-	char 	*ret;
-	
-	n = char_count(s, c);
+
 	i = 0;
-	while (i < n)
+	while (i < (cn - 1))
 	{
-		ret[i] = s[i];
+		d[i] = s[i];
 		i++;
 	}
-	ret[n] = 0;
-	return (ret);
+	d[cn] = 0;
 }
 
 char	**ft_split(char const *s, char c)
 {
 	int		i;
-    int		start;
 	char	**ret;
-	char	*str;
-	int		len;
+	int n;
+	char *sp;
+	int cn;
 	
+	sp = (char*)s;
+	n = pointer_num(s,c);
 	i = 0;
-	start = 0;
-	len = ft_strlen(s);
-	ret = pointer_malloc(s,c);
-	if (!char_malloc(s,c) || !ret)
-		return (NULL);
-	while (ret[i])
+	ret = (char**)malloc(sizeof(char*) * n);
+	ret[n -1] = (char*)0;
+
+	while (i < (n - 1))
 	{
-		if (start == 0)
-			ret[i] = charcpy(&s[start], c);
-		while (start < len)
-		{
-			start = char_count(&s[start], c);
-			ret[i] = charcpy(&s[start], c);
-		}
+		cn = char_count(sp, c);
+		ret[i] = malloc(sizeof(char) * cn);
+		charcpy(ret[i], sp, cn);
+		sp += cn;
 		i++;
 	}
 	return (ret); 
 }
-/*
+
 int main()
 {
     char months[] = "JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC";
@@ -124,13 +117,11 @@ int main()
     printf("months=[%s]\n\n", months);
 
     tokens = ft_split(months, ',');
-printf("1");
     if (tokens)
     {
         int i;
         for (i = 0; *(tokens + i); i++)
         {
-            printf("1");
             printf("month=[%s]\n", *(tokens + i));
             free(*(tokens + i));
         }
@@ -139,4 +130,4 @@ printf("1");
     }
 
     return 0;
-}*/
+}
